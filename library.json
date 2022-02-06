@@ -1,0 +1,25 @@
+{
+  "name": "ESP32-libs",
+  "version": "1.0.0",
+  "description": "Collection of various libraries for ESP32 development",
+  "keywords": "ESP32 libraries",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/username/hello-world.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Andrey Smirnov",
+      "email": "asmirn01@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "dependencies": {
+  },
+  "frameworks": "arduino",
+  "platforms": "espressif32"
+}
