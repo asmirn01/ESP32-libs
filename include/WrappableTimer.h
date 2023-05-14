@@ -9,9 +9,9 @@ class WrappableTimer {
                    bool initiallyActive = true, void* userData = NULL)
         : m_intervalMs(intervalMs), m_callback(callback), m_active(initiallyActive), m_userData(userData) {
         if (bTriggerImmediately) {
-            m_lastReadingTimeMs = millis() - intervalMs;
+            m_lastTriggeredTimeMs = millis() - intervalMs;
         } else {
-            m_lastReadingTimeMs = millis();
+            m_lastTriggeredTimeMs = millis();
         }
     }
 
@@ -23,13 +23,15 @@ class WrappableTimer {
         }
         unsigned long now = millis();
         unsigned long timeDelta;
-        if (m_lastReadingTimeMs <= now) {
-            timeDelta = now - m_lastReadingTimeMs;
+        if (m_lastTriggeredTimeMs <= now) {
+            timeDelta = now - m_lastTriggeredTimeMs;
         } else {
-            timeDelta = 0xFFFFFFFF - m_lastReadingTimeMs + now;
+            timeDelta = ULONG_MAX - m_lastTriggeredTimeMs + now;
         }
         return timeDelta;
     }
+
+    unsigned long timeUntlNextTriggerMs() { return m_intervalMs - elapsed(); }
 
     void elapsedStr(char* buffer, unsigned int bufferSize) const {
         if (!m_active || bufferSize < 6) {
@@ -70,20 +72,22 @@ class WrappableTimer {
     }
 
     void reset() {
-        m_lastReadingTimeMs = millis();
+        m_lastTriggeredTimeMs = millis();
         m_active = true;
     }
 
     void triggerAndReshedule() {
-        m_lastReadingTimeMs = millis();
+        m_lastTriggeredTimeMs = millis();
         m_callback(m_userData);
     }
+
+    bool isActive() { return m_active; };
 
    private:
     const unsigned long m_intervalMs;
     void (*m_callback)(void*);
     bool m_active;
-    unsigned long m_lastReadingTimeMs;
+    unsigned long m_lastTriggeredTimeMs;
     void* m_userData;
 };
 
@@ -95,6 +99,17 @@ class WrappableTimerManager {
         for (int i = 0; i < TimerCount; i++) {
             timers[i]->process();
         }
+    }
+
+    /** returns ULONG_MAX if no timers are active */
+    unsigned long timeUntilNextTriggerMs() {
+        unsigned long timeUntilNextTrigger = ULONG_MAX;
+        for (int i = 0; i < TimerCount; i++) {
+            if (timers[i]->isActive()) {
+                timeUntilNextTrigger = min(timeUntilNextTrigger, timers[i]->timeUntlNextTriggerMs());
+            }
+        }
+        return timeUntilNextTrigger;
     }
 
    private:
