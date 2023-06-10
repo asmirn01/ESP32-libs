@@ -31,6 +31,13 @@ class WrappableTimer {
         return timeDelta;
     }
 
+    void setInterval(unsigned long newInterval) {
+        m_intervalMs = newInterval;
+        if (m_active) {
+            reset();
+        }
+    }
+
     unsigned long timeUntlNextTriggerMs() { return m_intervalMs - elapsed(); }
 
     void elapsedStr(char* buffer, unsigned int bufferSize) const {
@@ -83,8 +90,10 @@ class WrappableTimer {
 
     bool isActive() { return m_active; };
 
+    unsigned long getIntervalMs() { return m_intervalMs; };
+
    private:
-    const unsigned long m_intervalMs;
+    unsigned long m_intervalMs;
     void (*m_callback)(void*);
     bool m_active;
     unsigned long m_lastTriggeredTimeMs;

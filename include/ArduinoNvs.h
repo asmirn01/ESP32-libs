@@ -53,6 +53,24 @@ class ArduinoNvs {
     bool setString(const char* key, String value, bool forceCommit = false);
     bool setBlob(const char* key, void* blob, size_t length, bool forceCommit = false);
 
+    bool setValue(const char* key, uint8_t value, bool forceCommit = false) { return setInt(key, value, forceCommit); };
+    bool setValue(const char* key, int16_t value, bool forceCommit = false) { return setInt(key, value, forceCommit); };
+    bool setValue(const char* key, uint16_t value, bool forceCommit = false) {
+        return setInt(key, value, forceCommit);
+    };
+    bool setValue(const char* key, int32_t value, bool forceCommit = false) { return setInt(key, value, forceCommit); };
+    bool setValue(const char* key, uint32_t value, bool forceCommit = false) {
+        return setInt(key, value, forceCommit);
+    };
+    bool setValue(const char* key, int64_t value, bool forceCommit = false) { return setInt(key, value, forceCommit); };
+    bool setValue(const char* key, uint64_t value, bool forceCommit = false) {
+        return setInt(key, value, forceCommit);
+    };
+    bool setValue(const char* key, float value, bool forceCommit = false) { return setFloat(key, value, forceCommit); };
+    bool setValue(const char* key, String value, bool forceCommit = false) {
+        return setString(key, value, forceCommit);
+    };
+
     int64_t getInt(const char* key, int64_t default_value = 0);  // In case of error, default_value will be returned
     float getFloat(String key, float default_value = 0);
 

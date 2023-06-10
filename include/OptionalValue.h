@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ArduinoNvs.h"
+#include "PrintfString.h"
+#include "Syslog.h"
 
 #ifdef TAG
 #undef TAG
@@ -23,7 +25,11 @@ class OptionalValue {
         strncat(_nvsIsValidKeyName, nvsKeyName, MAX_NVS_KEY_LENGTH - 1);
     }
 
-    void setValue(T value) {
+    OptionalValue& operator=(const T& v) {
+        setValue(v);
+        return *this;
+    };
+    void setValue(const T& value) {
         _value = value;
         _isValid = true;
     }
@@ -75,11 +81,11 @@ class OptionalValue {
     void save(ArduinoNvs& nvs) const {
         if (_isValid) {
             ESP_LOGD(TAG, "Saving %s as valid %s", _nvsKeyName, valueOrNull().c_str());
-            nvs.setInt(_nvsIsValidKeyName, 1);
+            nvs.setInt(_nvsIsValidKeyName, (uint8_t)1);
             nvs.setInt(_nvsKeyName, _value);
         } else {
             ESP_LOGD(TAG, "Saving %s as invalid", _nvsKeyName);
-            nvs.setInt(_nvsIsValidKeyName, 0);
+            nvs.setInt(_nvsIsValidKeyName, (uint8_t)0);
         }
     }
 
