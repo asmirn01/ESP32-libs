@@ -54,6 +54,7 @@ class ArduinoNvs {
     bool setBlob(const char* key, void* blob, size_t length, bool forceCommit = false);
 
     bool setValue(const char* key, uint8_t value, bool forceCommit = false) { return setInt(key, value, forceCommit); };
+    bool setValue(const char* key, bool value, bool forceCommit = false) { return setInt(key, (uint8_t)value, forceCommit); };
     bool setValue(const char* key, int16_t value, bool forceCommit = false) { return setInt(key, value, forceCommit); };
     bool setValue(const char* key, uint16_t value, bool forceCommit = false) {
         return setInt(key, value, forceCommit);

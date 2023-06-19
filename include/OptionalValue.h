@@ -16,7 +16,7 @@ extern Syslog syslog;
 template <typename T>
 class OptionalValue {
    public:
-    OptionalValue(const char* nvsKeyName) {
+    OptionalValue(const char* nvsKeyName, const T& defValue) : _defValue(defValue) {
         if (strlen(nvsKeyName) >= (MAX_NVS_KEY_LENGTH - 1)) {
             ESP_LOGE(TAG, "Too long NVS key name");
         }
@@ -82,7 +82,7 @@ class OptionalValue {
         if (_isValid) {
             ESP_LOGD(TAG, "Saving %s as valid %s", _nvsKeyName, valueOrNull().c_str());
             nvs.setInt(_nvsIsValidKeyName, (uint8_t)1);
-            nvs.setInt(_nvsKeyName, _value);
+            nvs.setValue(_nvsKeyName, _value);
         } else {
             ESP_LOGD(TAG, "Saving %s as invalid", _nvsKeyName);
             nvs.setInt(_nvsIsValidKeyName, (uint8_t)0);
@@ -91,6 +91,7 @@ class OptionalValue {
 
    private:
     T _value;
+    T _defValue;
     boolean _isValid;
     char _nvsKeyName[MAX_NVS_KEY_LENGTH + 1] = {0};
     char _nvsIsValidKeyName[MAX_NVS_KEY_LENGTH + 1] = {0};
