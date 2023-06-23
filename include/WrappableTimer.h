@@ -88,6 +88,10 @@ class WrappableTimer {
         m_callback(m_userData);
     }
 
+    void log() {
+        Serial.printf("WrappableTimer m_active=%d m_intervalMs=%lu elapsed=%lu\n", m_active, m_intervalMs, elapsed());
+    }
+
     bool isActive() { return m_active; };
 
     unsigned long getIntervalMs() { return m_intervalMs; };

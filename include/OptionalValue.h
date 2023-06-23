@@ -18,7 +18,7 @@ class OptionalValue {
    public:
     OptionalValue(const char* nvsKeyName, const T& defValue) : _defValue(defValue) {
         if (strlen(nvsKeyName) >= (MAX_NVS_KEY_LENGTH - 1)) {
-            ESP_LOGE(TAG, "Too long NVS key name");
+            ESP_LOGE(TAG, "Too long NVS key name '%s'", nvsKeyName);
         }
         strncpy(_nvsKeyName, nvsKeyName, MAX_NVS_KEY_LENGTH);
         strcpy(_nvsIsValidKeyName, "_");
@@ -75,6 +75,13 @@ class OptionalValue {
             setValue(nvs.getInt(_nvsKeyName));
             ESP_LOGD(TAG, "Reading %s as valid %s", _nvsKeyName, valueOrNull().c_str());
             return true;
+        }
+    }
+
+    void loadOrDefault(ArduinoNvs& nvs) {
+        load(nvs);
+        if (!isValid()) {
+            setValue(_defValue);
         }
     }
 
