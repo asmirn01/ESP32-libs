@@ -11,7 +11,7 @@ class Serializable {
     Serializable(const char* key) : _key(key){};
 
     virtual void storeState() = 0;
-    virtual void retrieveState() = 0;
+    virtual boolean retrieveState() = 0;
 
     void initNVS() { nvs.begin(_key); }
     ArduinoNvs nvs;
