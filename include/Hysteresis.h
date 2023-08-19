@@ -18,7 +18,8 @@ class HysteresisConfigData {
 
 class Hysteresis : public Serializable {
    public:
-    Hysteresis(const char* name) : Serializable(name), _currentState(false){};
+    Hysteresis(const char* name, bool invertedValues = false)
+        : Serializable(name), _currentState(false), _invertedValues(invertedValues){};
 
     void storeState() {
         nvs.setInt("meanValue", (int32_t)_config.meanValue);
@@ -78,13 +79,25 @@ class Hysteresis : public Serializable {
 
         int average = getAverageValue();
 
-        if (_currentState) {
-            if (average >= (_config.meanValue + _config.delta)) {
-                _currentState = false;
+        if (!_invertedValues) {
+            if (_currentState) {
+                if (average >= (_config.meanValue + _config.delta)) {
+                    _currentState = false;
+                }
+            } else {
+                if (average < (_config.meanValue - _config.delta)) {
+                    _currentState = true;
+                }
             }
         } else {
-            if (average < (_config.meanValue - _config.delta)) {
-                _currentState = true;
+            if (_currentState) {
+                if (average < (_config.meanValue + _config.delta)) {
+                    _currentState = false;
+                }
+            } else {
+                if (average >= (_config.meanValue - _config.delta)) {
+                    _currentState = true;
+                }
             }
         }
 
@@ -110,5 +123,6 @@ class Hysteresis : public Serializable {
     bool _currentState;
     HysteresisConfigData _config;
     CircularBuffer<int, 5> _buffer;
+    bool _invertedValues;
     using buffer_index_t = decltype(_buffer)::index_t;
 };
