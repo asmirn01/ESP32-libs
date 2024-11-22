@@ -114,6 +114,12 @@ class WrappableTimerManager {
         }
     }
 
+    void deactivateAllTimers() {
+        for (int i = 0; i < TimerCount; i++) {
+            timers[i]->deactivate();
+        }
+    }
+
     /** returns ULONG_MAX if no timers are active */
     unsigned long timeUntilNextTriggerMs() {
         unsigned long timeUntilNextTrigger = ULONG_MAX;
