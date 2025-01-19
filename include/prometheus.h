@@ -126,6 +126,31 @@ private:
 	GetMetricValueFunction getMetricValueFunction;
 };
 
+class MemoryStatsAndUptimeMetric : public IMetric {
+public:
+	MemoryStatsAndUptimeMetric(const unsigned int _expirationTimeMs = 5000)
+		: IMetric("", "", gauge, _expirationTimeMs, 0) {};
+
+	const String toString() const {
+		String str;
+		str += (String) "# HELP uptime Uptime, sec\n# TYPE uptime " + MetricTypeNames[gauge] + "\n";
+		str += "uptime " + String(millis() / 1000) + "\n";
+
+		str += (String) "# HELP memory_metrics Memory metrics\n# TYPE memory_metrics " + MetricTypeNames[gauge] + "\n";
+		multi_heap_info_t info;
+		heap_caps_get_info(&info, MALLOC_CAP_INTERNAL);
+		str +=
+			"memory_metrics{name=\"HeapTotal\"} " + String(info.total_allocated_bytes + info.total_free_bytes) + "\n";
+		str += "memory_metrics{name=\"HeapFree\"} " + String(info.total_free_bytes) + "\n";
+		str += "memory_metrics{name=\"HeapLargestBlock\"} " + String(info.largest_free_block) + "\n";
+		str += "memory_metrics{name=\"HeapMinimumFree\"} " + String(info.minimum_free_bytes) + "\n";
+		str += "memory_metrics{name=\"HeapAllocatedBlocks\"} " + String(info.allocated_blocks) + "\n";
+		str += "memory_metrics{name=\"HeapFreeBlocks\"} " + String(info.free_blocks) + "\n";
+		str += "memory_metrics{name=\"HeapTotalBlocks\"} " + String(info.total_blocks) + "\n";
+		return str;
+	}
+};
+
 template <int MetricCount> class Prometheus {
 public:
 	Prometheus(const IMetric *_metrics[]) : metrics(_metrics) {};

@@ -137,20 +137,20 @@ public:
 
 	/** returns map <timer name>,<timer average execution durations> */
 	const std::map<String, String> getAndResetTimerStats() {
+		std::map<String, String> metrics;
 		if (lastTimerStatsRetrieval == 0) {
 			lastTimerStatsRetrieval = millis();
-			return std::map<String, String>();
-		}
-		std::map<String, String> metrics;
-		float timeDurationSec = (float)(millis() - lastTimerStatsRetrieval) / 1000;
-		for (int i = 0; i < TimerCount; i++) {
-			unsigned long accumulatedDuration = accumulatedExecutionDurations[i];
-			if (timeDurationSec != 0) {
-				metrics[getTimerName(i)] = (unsigned long)(accumulatedDuration / timeDurationSec);
-			} else {
-				metrics[getTimerName(i)] = accumulatedDuration;
+		} else {
+			float timeDurationSec = (float)(millis() - lastTimerStatsRetrieval) / 1000;
+			for (int i = 0; i < TimerCount; i++) {
+				unsigned long accumulatedDuration = accumulatedExecutionDurations[i];
+				if (timeDurationSec != 0) {
+					metrics[getTimerName(i)] = (unsigned long)(accumulatedDuration / timeDurationSec);
+				} else {
+					metrics[getTimerName(i)] = accumulatedDuration;
+				}
+				accumulatedExecutionDurations[i] = 0;
 			}
-			accumulatedExecutionDurations[i] = 0;
 		}
 
 		return metrics;
