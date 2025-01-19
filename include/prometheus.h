@@ -1,6 +1,7 @@
 #pragma once
 
-#include <WString.h>
+#include <arduino.h>
+#include <map>
 #include <vector>
 
 #define stringify(name) #name
@@ -62,6 +63,9 @@ private:
 	float value;
 };
 
+/** Defines a 'switch' metric wich number of states, one of which can be in the active state. Active state is reported
+ * to have value 1, all other states are reported with value 0
+ */
 class EnumTypeMetric : public IMetric {
 public:
 	EnumTypeMetric(const std::initializer_list<const char *> _states, const String &_name, const String &_help,
@@ -77,7 +81,7 @@ public:
 				break;
 			}
 		}
-        lastSetTimeMs = millis();
+		lastSetTimeMs = millis();
 	}
 
 	const String toString() const {
@@ -87,7 +91,7 @@ public:
 			for (int i = 0; i < states.size(); i++) {
 				str += name + "{state=\"" + states[i] + "\"} ";
 				str += (currentState == i) ? "1" : "0";
-                str += "\n";
+				str += "\n";
 			}
 		}
 		return str;
@@ -96,6 +100,30 @@ public:
 private:
 	std::vector<const char *> states;
 	int currentState = -1;
+};
+
+typedef std::function<const std::map<String, String>()> GetMetricValueFunction;
+
+class DelegatingArrayTypeMetric : public IMetric {
+public:
+	DelegatingArrayTypeMetric(GetMetricValueFunction _getMetricValueFunction, const String &_name, const String &_help,
+							  const MetricType _type, const unsigned int _expirationTimeMs = 5000,
+							  const unsigned long _decimals = 1)
+		: IMetric(_name, _help, _type, _expirationTimeMs, _decimals),
+		  getMetricValueFunction(_getMetricValueFunction) {};
+
+	const String toString() const {
+		String str;
+		str += "# HELP " + name + " " + help + "\n# TYPE " + name + " " + MetricTypeNames[type] + "\n";
+		const std::map<String, String> metrics = getMetricValueFunction();
+		for (auto const &metric : metrics) {
+			str += name + "{name=\"" + metric.first + "\"} " + metric.second + "\n";
+		}
+		return str;
+	};
+
+private:
+	GetMetricValueFunction getMetricValueFunction;
 };
 
 template <int MetricCount> class Prometheus {
